@@ -748,6 +748,16 @@ await t(G13, 'a link with ?plantilla= opens the app already configured, and only
     try { await sleep(400); eq(await q.ev('config.room'), '', 'rejected: ' + bad); } finally { await q.close(); }
   }
 });
+await t(G13, 'section colours stay readable on a light theme (deep tones, not pastels)', async p => {
+  await p.ev("config.theme='light';config.slides=[{id:'x',kind:'text',title:'T',content:'Hola',visible:true,accent:'blue',image:''}];activeId='x';applyTheme();applyAppearance();renderSlide()"); await sleep(700);
+  const lum = c => { const [r, g, b] = c.match(/\d+/g).map(Number).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * r + .7152 * g + .0722 * b; };
+  for (const tone of ['theme', 'blue', 'mint', 'gold', 'coral', 'purple']) {
+    await p.ev(`config.slides[0].accent='${tone}';renderSlide()`); await sleep(50);
+    const fg = await p.ev("getComputedStyle(document.querySelector('.slide-type')).color"), bg = await p.ev("getComputedStyle(document.body).backgroundColor");
+    const ratio = (Math.max(lum(fg), lum(bg)) + .05) / (Math.min(lum(fg), lum(bg)) + .05);
+    ok(ratio >= 4.5, tone + ' contrast ' + ratio.toFixed(2) + ' on the light theme');
+  }
+});
 await t(G13, 'in a saved template the bulky images come last, so the JSON stays readable', async p => {
   await p.ev("config.logoDark='data:image/png;base64,AAAA';config.logoLight='data:image/png;base64,BBBB';0");
   const keys = await p.ev("Object.keys(currentContent())"); eq(keys.slice(-2).join(), 'logoDark,logoLight'); eq(await p.ev("Object.keys(currentContent().slides[0]).pop()"), 'image');
@@ -912,7 +922,7 @@ await t(G15, 'kind buttons and colour swatches edit the section', async p => {
   await open(p, 'slides');
   for (const k of ['text', 'notice', 'table', 'image', 'list']) { await p.ev(`document.querySelector('[data-slide-kind] [data-v=${k}]').click()`); eq(await p.ev('selectedSlide().kind'), k); eq(await p.ev("document.querySelector('[data-slide-kind] [aria-checked=true]').dataset.v"), k); eq(await p.ev("document.querySelector('#slide-list .tile.sel')?1:0"), 1); }
   await p.ev("document.querySelector('[data-slide-accent] [data-v=coral]').click()"); eq(await p.ev('selectedSlide().accent'), 'coral'); eq(await p.ev("document.querySelector('[data-slide-accent] [aria-checked=true]').dataset.v"), 'coral');
-  eq(await p.ev("document.getElementById('slide').style.getPropertyValue('--accent').trim()"), 'var(--err)');
+  eq(await p.ev("document.getElementById('slide').dataset.tone"), 'coral'); eq(await p.ev("getComputedStyle(document.getElementById('slide')).getPropertyValue('--accent').trim().toLowerCase()"), '#f28b82');
 });
 await t(G15, 'toolbar icons reorder, duplicate and delete, and the first/last limits disable them', async p => {
   await tpl(p, 'complecio', 'clock'); await open(p, 'slides'); eq(await p.ev("document.getElementById('move-up').disabled"), true, 'first cannot go up');

@@ -75,6 +75,9 @@ body.only-clock .board,body.only-clock .split{display:none}body.only-board .time
 .slide{flex:1;min-height:0;display:flex;flex-direction:column;gap:2.2vh;padding-top:2vh;overflow:hidden}
 .slide.enter{animation:enter .5s cubic-bezier(.2,0,0,1)}@keyframes enter{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 .slide-title-row{display:flex;flex-direction:column;gap:14px;flex:none;align-items:flex-start}
+/* section colours: pastel on dark backgrounds, deeper tones on light ones so the chips and numbers stay readable */
+.slide[data-tone=theme]{--accent:var(--primary)}.slide[data-tone=blue]{--accent:#8ab4f8}.slide[data-tone=mint]{--accent:#81c995}.slide[data-tone=gold]{--accent:#fdd663}.slide[data-tone=coral]{--accent:#f28b82}.slide[data-tone=purple]{--accent:#d7aefb}
+body.light .slide[data-tone=blue]{--accent:#1a56c4}body.light .slide[data-tone=mint]{--accent:#146c3d}body.light .slide[data-tone=gold]{--accent:#8a5a00}body.light .slide[data-tone=coral]{--accent:#b3261e}body.light .slide[data-tone=purple]{--accent:#6750a4}
 .slide-type{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--accent,var(--primary));background:color-mix(in srgb,var(--accent,var(--primary)) 16%,transparent);border-radius:999px;padding:6px 16px 6px 11px}.slide-type svg.i{width:18px;height:18px}
 .slide-title{margin:0;font-size:calc(clamp(30px,5.4vh,60px)*var(--bump)*(.5 + var(--fit,1)*.5));font-weight:400;letter-spacing:-.02em;line-height:1.08;overflow-wrap:anywhere}
 .slide-body{flex:1;min-height:0;overflow:auto;scrollbar-width:none;display:flex;flex-direction:column;--fs:calc(clamp(20px,3.2vh,36px)*var(--bump)*var(--fit,1))}
@@ -280,7 +283,6 @@ const mins=t=>Number(t.slice(0,2))*60+Number(t.slice(3,5));
 const hms=d=>`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
 const nowSeconds=()=>{const d=new Date();if(simulated!==null){const h=Number(simulated.slice(0,2)),m=Number(simulated.slice(3,5));d.setHours(h,m,0,0);}return d;};
 const fromSecs=(n,seconds)=>{const hh=Math.floor(n/3600),mm=Math.floor(n%3600/60),ss=n%60;return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}${seconds?':'+String(ss).padStart(2,'0'):''}`;};
-const accents={theme:'var(--primary)',blue:'#8ab4f8',mint:'#81c995',gold:'var(--warn)',coral:'var(--err)',purple:'#d7aefb'};
 const TYPES={list:'PUNTS CLAU',text:'INFORMACIÓ',notice:'AVÍS DESTACAT',image:'IMATGE',table:'TAULA'};
 const visibleSlides=()=>config.slides.filter(s=>s.visible);
 function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(config));return true;}catch(e){showStatus('No s’ha pogut desar. Proveu de reduir la mida de les imatges.',true);return false;}}
@@ -296,7 +298,7 @@ const KIND_ICON={list:'list',text:'text',notice:'megaphone',image:'image',table:
 const KIND_LABEL={list:'Llista de punts',text:'Text lliure',notice:'Avís gran',table:'Taula',image:'Imatge i peu de foto'};
 function renderSlide(){const slides=ensureActive();const slide=slides.find(s=>s.id===activeId);const host=$('slide');const changed=host.dataset.shown!==(slide?slide.id:'');host.replaceChildren();host.className='slide';if(!slide){host.dataset.shown='';host.classList.add('empty');const ic=makeEl('i','ic');ic.innerHTML=icon('eye-off');host.append(ic,makeEl('h3','','No hi ha seccions visibles'),makeEl('p','','Obriu la configuració per afegir informació a la pantalla.'));safeSet('slide-count','0 / 0');$('prev-btn').disabled=$('next-btn').disabled=true;$('slide-dots').replaceChildren();updateRotation();return;}
  host.dataset.shown=slide.id;if(changed)host.classList.add('enter');
- const i=slides.findIndex(s=>s.id===slide.id);safeSet('slide-count',`${i+1} / ${slides.length}`);$('prev-btn').disabled=$('next-btn').disabled=slides.length<2;host.classList.toggle('is-notice',slide.kind==='notice');host.classList.toggle('image',slide.kind==='image');host.style.setProperty('--accent',accents[slide.accent]);
+ const i=slides.findIndex(s=>s.id===slide.id);safeSet('slide-count',`${i+1} / ${slides.length}`);$('prev-btn').disabled=$('next-btn').disabled=slides.length<2;host.classList.toggle('is-notice',slide.kind==='notice');host.classList.toggle('image',slide.kind==='image');host.dataset.tone=slide.accent;
  const top=makeEl('div','slide-title-row');const chip=makeEl('span','slide-type');chip.innerHTML=icon(KIND_ICON[slide.kind]||'text');chip.append(document.createTextNode(sc(TYPES[slide.kind])));top.append(chip,makeEl('h3','slide-title',slide.title||'Informació'));host.append(top);
  const body=makeEl('div','slide-body');const lines=slide.content.split('\n').map(x=>x.trim()).filter(Boolean);
  if(slide.kind==='list'){const st=config.listStyle;const ul=makeEl('ul',st);lines.forEach((x,n)=>{const li=makeEl('li','');if(st!=='bullets'){li.append(makeEl('span','num',String(n+1)));}li.append(makeEl('span','t',x.replace(/^[•\-–]\s*/,'')));ul.append(li);});body.append(ul);}
