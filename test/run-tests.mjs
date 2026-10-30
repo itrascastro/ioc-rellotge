@@ -710,6 +710,9 @@ await t(G13, 'the shipped collection template follows the protocol: times, phase
   await sim(p, '15:10'); eq(await txt(p, 'stage-tag'), 'Inici de les proves'); eq(await txt(p, 'countdown'), '00:20'); has(await txt(p, 'stage-hint-text'), 'Mòbils');
   await sim(p, '16:58'); eq(await txt(p, 'event-name'), 'Primera recollida'); eq((await body(p)).data.state, 'warn');
   await sim(p, '21:20'); eq(await txt(p, 'stage-tag'), 'Recollida de la resta');
+  eq(JSON.stringify(SHIPPED.data.slides.map(s => s.title)), JSON.stringify(['Abans de començar', 'Horaris de la jornada', 'Durada de les proves', 'Entrada i sortida', 'Mentre feu les proves', 'Com lliurar les proves', 'Vigilància (professorat)', 'Final de jornada (professorat)']));
+  await sim(p, '15:10'); has(await txt(p, 'stage-hint-text'), 'ningú pot sortir'); has(SHIPPED.data.slides.find(s => s.title === 'Entrada i sortida').content, 'ningú pot sortir');
+  await sim(p, '15:40'); has(await txt(p, 'stage-hint-text'), 'tancat l’accés');
   const all = JSON.stringify(SHIPPED); ok(!/chat\.whatsapp|https?:/.test(all), 'no links in a projected screen');
   for (const e of SHIPPED.data.schedule) { ok(e.name.length <= 60 && e.msg.length <= 140, 'limits ' + e.name); }
   const back = await p.ev("normalizeState(" + JSON.stringify(SHIPPED.data) + ")"); eq(back.schedule.length, 10); eq(back.slides.length, 8);
