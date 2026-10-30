@@ -36,6 +36,8 @@ A template holds every setting (46 keys): texts, schedule, sections, clock mode,
   (same-site `.json` paths only; it asks before replacing a saved setup).
 - A deployment can ship a default for first-time visitors with `<meta name="rellotge-plantilla" content="presets/your-file.json">`
   in `index.html`. This repository points it at the collection-exam template; remove the tag for a blank start.
+  Give the template a top-level `"revision"` number: when you raise it, returning visitors are asked once whether to apply
+  the new version (declining keeps their setup, and nothing is ever replaced without asking).
 - `presets/exemple-complet.json` lists every key with its default (generated from the code: `npm run example`).
 - `presets/proves-compleccio.json` is a real session: schedule, per-phase messages and sections for a collection exam.
 - The full reference of keys and allowed values is in [`doc/plantilla-json.md`](doc/plantilla-json.md).
@@ -45,7 +47,7 @@ A template holds every setting (46 keys): texts, schedule, sections, clock mode,
 No dependencies: Node ≥ 22 and Chrome. A hand-written DevTools client drives a real browser.
 
 ```bash
-npm test          # functional battery (167 tests)
+npm test          # functional battery (168 tests)
 npm run stress    # every text at its maximum length, three screen sizes
 ```
 

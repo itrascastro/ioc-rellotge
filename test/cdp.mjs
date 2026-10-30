@@ -31,7 +31,7 @@ export async function launch(port = 9333) {
 
 export class Page {
   constructor(browser, sessionId, contextId, targetId) { Object.assign(this, { browser, sessionId, contextId, targetId, errors: [], dialogs: [] }); }
-  static async open(browser, url, { seed, width = 1920, height = 1080, scheme = 'dark', pre = '', locale = 'ca-ES' } = {}) {
+  static async open(browser, url, { seed, width = 1920, height = 1080, scheme = 'dark', pre = '', locale = 'ca-ES', acceptDialogs = true } = {}) {
     const { send, on } = browser;
     const { browserContextId } = await send('Target.createBrowserContext');
     const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId });
@@ -43,7 +43,7 @@ export class Page {
       if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'error') page.errors.push('console.error: ' + m.params.args.map(a => a.value ?? a.description).join(' '));
       if (m.method === 'Page.javascriptDialogOpening') { page.dialogs.push(m.params.message); send('Page.handleJavaScriptDialog', { accept: page.acceptDialogs !== false }, sessionId); }
     });
-    page.acceptDialogs = true;
+    page.acceptDialogs = acceptDialogs;
     await page.cmd('Page.enable'); await page.cmd('Runtime.enable'); await page.cmd('DOM.enable');
     await page.cmd('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
     await page.cmd('Emulation.setUserAgentOverride', { userAgent: (await browser.send('Browser.getVersion')).userAgent, acceptLanguage: locale });

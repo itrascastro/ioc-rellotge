@@ -145,6 +145,7 @@ await t(G2, 'timeline hides when the schedule has fewer than two stops', async p
 });
 await t(G2, 'warning state: amber near a milestone, normal far away, off when disabled', async p => {
   await tpl(p, 'complecio'); await sim(p, '16:56'); eq((await body(p)).data.state, 'warn');
+  const exit = SHIPPED.data.slides.find(s => s.title === 'Sortida de l’aula').content; ok(!/entrar|accés/i.test(exit), 'the notice is for those already inside: it is about leaving, not entering'); ok(!/entrar/i.test(SHIPPED.data.schedule.find(e => e.t === '15:00').msg + SHIPPED.data.schedule.find(e => e.t === '15:30').msg), 'phase messages are about leaving');
   await sim(p, '15:40'); eq((await body(p)).data.state, 'ok');
   await p.ev("config.warnMin=0;renderClock()"); await sim(p, '16:58'); eq((await body(p)).data.state, 'ok');
   await p.ev("config.warnMin=5;config.tintMode='none';renderClock()"); await sim(p, '16:58'); eq((await body(p)).data.state, 'ok');
@@ -709,9 +710,9 @@ await t(G13, 'the shipped collection template follows the protocol: times, phase
   await sim(p, '15:10'); eq(await txt(p, 'stage-tag'), 'Inici de les proves'); eq(await txt(p, 'countdown'), '00:20'); has(await txt(p, 'stage-hint-text'), 'Mòbils');
   await sim(p, '16:58'); eq(await txt(p, 'event-name'), 'Primera recollida'); eq((await body(p)).data.state, 'warn');
   await sim(p, '21:20'); eq(await txt(p, 'stage-tag'), 'Recollida de la resta');
-  eq(JSON.stringify(SHIPPED.data.slides.map(s => s.title)), JSON.stringify(['Abans de començar', 'Horaris de la jornada', 'Durada de les proves', 'Entrada i sortida', 'Mentre feu les proves', 'Com lliurar les proves']));
-  await sim(p, '15:10'); has(await txt(p, 'stage-hint-text'), 'ningú pot sortir'); has(SHIPPED.data.slides.find(s => s.title === 'Entrada i sortida').content, 'ningú pot sortir');
-  await sim(p, '15:40'); has(await txt(p, 'stage-hint-text'), 'tancat l’accés');
+  eq(JSON.stringify(SHIPPED.data.slides.map(s => s.title)), JSON.stringify(['Abans de començar', 'Horaris de la jornada', 'Durada de les proves', 'Sortida de l’aula', 'Mentre feu les proves', 'Com lliurar les proves']));
+  await sim(p, '15:10'); has(await txt(p, 'stage-hint-text'), 'Ningú pot sortir'); 
+  await sim(p, '15:40'); has(await txt(p, 'stage-hint-text'), 'ja pot sortir');
   const all = JSON.stringify(SHIPPED); ok(!/chat\.whatsapp|https?:/.test(all), 'no links in a projected screen');
   for (const e of SHIPPED.data.schedule) { ok(e.name.length <= 60 && e.msg.length <= 140, 'limits ' + e.name); }
   const back = await p.ev("normalizeState(" + JSON.stringify(SHIPPED.data) + ")"); eq(back.schedule.length, 10); eq(back.slides.length, 6); ok(SHIPPED.data.slides.every(s => s.visible), 'no hidden section: the settings are visible on the projector'); ok(!/professorat/i.test(SHIPPED.data.slides.map(s => s.title).join('|')), 'no section addressed to teachers');
@@ -771,6 +772,19 @@ await t(G13, 'the published page ships the collection-exam setup by default, on 
   try { await sleep(600); eq(await q.ev('config.title'), 'La meva pantalla', 'a saved setup is never replaced'); eq(await q.ev('config.room'), 'Aula 5'); eq(q.dialogs.length, 0); } finally { await q.close(); }
   q = await Page.open(browser, base + 'index.html?plantilla=presets/exemple-complet.json');
   try { await sleep(600); eq(await q.ev('config.title'), 'Benvinguts', 'an explicit link wins over the default'); } finally { await q.close(); }
+});
+await t(G13, 'a new revision of the default template is offered once, never forced', async p => {
+  const base = await serve(); const MARK = 'rellotge-ioc-plantilla-aplicada';
+  const rev = JSON.parse(readFileSync(join(ROOT, 'presets/proves-compleccio.json'), 'utf8')).revision; ok(rev >= 2, 'the shipped template has a revision');
+  const run = async (mark, accept) => {
+    const q = await Page.open(browser, base + 'index.html', { seed: { title: 'La meva pantalla' }, acceptDialogs: accept, pre: mark === null ? '' : `localStorage.setItem('${MARK}','${mark}')` });
+    try { await sleep(700); return { dialogs: q.dialogs.length, msg: q.dialogs[0] || '', title: await q.ev('config.title'), mark: await q.ev(`localStorage.getItem('${MARK}')`) }; } finally { await q.close(); }
+  };
+  const now = `presets/proves-compleccio.json#${rev}`;
+  let r = await run(`presets/proves-compleccio.json#${rev - 1}`, true); eq(r.dialogs, 1, 'asks'); has(r.msg, 'actualitzat'); eq(r.title, 'Proves de compleció'); eq(r.mark, now);
+  r = await run(`presets/proves-compleccio.json#${rev - 1}`, false); eq(r.dialogs, 1); eq(r.title, 'La meva pantalla', 'declining keeps the setup'); eq(r.mark, now, 'and it does not ask again');
+  r = await run(now, true); eq(r.dialogs, 0, 'same revision: silent'); eq(r.title, 'La meva pantalla');
+  r = await run(null, true); eq(r.dialogs, 0, 'a setup of unknown origin is left alone'); eq(r.title, 'La meva pantalla');
 });
 await t(G13, 'in a saved template the bulky images come last, so the JSON stays readable', async p => {
   await p.ev("config.logoDark='data:image/png;base64,AAAA';config.logoLight='data:image/png;base64,BBBB';0");

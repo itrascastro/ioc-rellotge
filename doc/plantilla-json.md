@@ -10,9 +10,11 @@ Un únic fitxer JSON configura tota la pantalla. Un agent només ha de canviar v
 ## Format
 
 ```json
-{ "app": "Rellotge-IOC-Plantilla", "version": 2, "name": "Nom visible", "data": { ... } }
+{ "app": "Rellotge-IOC-Plantilla", "version": 2, "revision": 1, "name": "Nom visible", "data": { ... } }
 ```
 
+- `revision` (opcional, número) només serveix a la plantilla per defecte d’un lloc: en pujar-lo, qui ja tenia una versió anterior
+  rep una pregunta, una sola vegada, per aplicar la nova. Mai se substitueix res sense preguntar.
 - Totes les claus de `data` són opcionals. **Una clau absent no es toca** (es manté el valor actual); una clau present
   se sanea i substitueix el valor. Un valor invàlid cau al valor per defecte, mai trenca l'app.
 - No hi ha estat d'execució a la plantilla (cronòmetre, temporitzador en marxa): només configuració.
