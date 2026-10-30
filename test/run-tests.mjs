@@ -634,6 +634,15 @@ await t(G12, 'invalid and hostile values are sanitised', async p => {
 }, { seed: { accent: 'neon', theme: 'purple', dial: 'abc', logoScale: 99999, idle: -5, layout: 1000, clockMode: 'nope', title: 'x'.repeat(5000), timerMinutes: 99999, target: '25:99', schedule: [{ t: '99:99', name: 'x' }], slides: 'oops' } });
 await t(G12, 'a missing localStorage (private mode) does not break the app', async p => { eq(await txt(p, 'main-title'), 'Benvinguts'); await p.ev("document.getElementById('next-btn').click()"); },
   { pre: "Object.defineProperty(window,'localStorage',{get(){throw new Error('denied')}});", allowErrors: true });
+await t(G12, 'the stage tag over the ring is never squeezed by a long detail', async p => {
+  await tpl(p, 'complecio'); await sim(p, '15:10');
+  for (const [w, h] of [[1920, 1080], [1280, 720], [1024, 700]]) {
+    await p.cmd('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false }); await sleep(250);
+    await p.ev("document.getElementById('stage-detail').textContent='Paraula '.repeat(30);0");
+    const r = await p.ev("(() => { const e = document.getElementById('stage-tag'); return [e.scrollWidth, e.clientWidth, e.textContent]; })()");
+    ok(r[0] <= r[1] + 1, `tag "${r[2]}" is cut at ${w}px (${r[0]} > ${r[1]})`);
+  }
+});
 await t(G12, 'midnight and the first second of the day are handled', async p => { await tpl(p, 'complecio'); await sim(p, '00:00'); eq(await txt(p, 'countdown'), '14:00'); eq(await txt(p, 'stage-tag'), 'Abans de començar'); });
 await t(G12, 'time travel: simulated time never breaks the timer or stopwatch', async p => { await sim(p, '16:10'); await p.ev("config.clockMode='timer';config.timerMinutes=2;renderClock();document.getElementById('ctl-toggle').click()"); await sleep(1300); ok((await txt(p, 'countdown')) < '02:00'); });
 await t(G12, 'no timers leak: the heap stays flat over many renders', async p => {

@@ -49,6 +49,7 @@ No dependencies: Node ≥ 22 and Chrome. A hand-written DevTools client drives a
 ```bash
 npm test          # functional battery (168 tests)
 npm run stress    # every text at its maximum length, three screen sizes
+npm run ellipsis  # no short text is cut with an ellipsis, in any mode or size
 ```
 
 Set `CHROME=/path/to/chrome` if Chrome is not in a standard location.
