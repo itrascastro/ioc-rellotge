@@ -701,8 +701,7 @@ await t(G13, 'the shipped collection template is valid, imported as your own and
   has(await txt(p, 'tpl-status'), 'desada');
   await p.ev("document.querySelector('#my-templates .btn:not(.danger)').click()"); await sleep(250);
   eq(await cfg(p, 'room'), 'Aula DAW'); has(await cfg(p, 'subtitle'), 'Escola del Treball'); eq(await cfg(p, 'clockMode'), 'schedule');
-  eq(await p.ev('config.schedule.length'), 10); eq(await p.ev('config.slides.length'), 8); eq(await p.ev('visibleSlides().length'), 6, 'teacher sections are hidden');
-  eq(await p.ev("config.slides.filter(s=>!s.visible).map(s=>s.title).join('|')"), 'Vigilància (professorat)|Final de jornada (professorat)');
+  eq(await p.ev('config.schedule.length'), 10); eq(await p.ev('config.slides.length'), 6); eq(await p.ev('visibleSlides().length'), 6, 'everything is public: no hidden sections');
 });
 await t(G13, 'the shipped collection template follows the protocol: times, phases and messages', async p => {
   eq(JSON.stringify(SHIPPED.data.schedule.map(e => e.t)), JSON.stringify(['14:00', '14:45', '15:00', '15:30', '16:10', '17:00', '19:00', '21:00', '21:15', '21:30']));
@@ -710,12 +709,12 @@ await t(G13, 'the shipped collection template follows the protocol: times, phase
   await sim(p, '15:10'); eq(await txt(p, 'stage-tag'), 'Inici de les proves'); eq(await txt(p, 'countdown'), '00:20'); has(await txt(p, 'stage-hint-text'), 'Mòbils');
   await sim(p, '16:58'); eq(await txt(p, 'event-name'), 'Primera recollida'); eq((await body(p)).data.state, 'warn');
   await sim(p, '21:20'); eq(await txt(p, 'stage-tag'), 'Recollida de la resta');
-  eq(JSON.stringify(SHIPPED.data.slides.map(s => s.title)), JSON.stringify(['Abans de començar', 'Horaris de la jornada', 'Durada de les proves', 'Entrada i sortida', 'Mentre feu les proves', 'Com lliurar les proves', 'Vigilància (professorat)', 'Final de jornada (professorat)']));
+  eq(JSON.stringify(SHIPPED.data.slides.map(s => s.title)), JSON.stringify(['Abans de començar', 'Horaris de la jornada', 'Durada de les proves', 'Entrada i sortida', 'Mentre feu les proves', 'Com lliurar les proves']));
   await sim(p, '15:10'); has(await txt(p, 'stage-hint-text'), 'ningú pot sortir'); has(SHIPPED.data.slides.find(s => s.title === 'Entrada i sortida').content, 'ningú pot sortir');
   await sim(p, '15:40'); has(await txt(p, 'stage-hint-text'), 'tancat l’accés');
   const all = JSON.stringify(SHIPPED); ok(!/chat\.whatsapp|https?:/.test(all), 'no links in a projected screen');
   for (const e of SHIPPED.data.schedule) { ok(e.name.length <= 60 && e.msg.length <= 140, 'limits ' + e.name); }
-  const back = await p.ev("normalizeState(" + JSON.stringify(SHIPPED.data) + ")"); eq(back.schedule.length, 10); eq(back.slides.length, 8);
+  const back = await p.ev("normalizeState(" + JSON.stringify(SHIPPED.data) + ")"); eq(back.schedule.length, 10); eq(back.slides.length, 6); ok(SHIPPED.data.slides.every(s => s.visible), 'no hidden section: the settings are visible on the projector'); ok(!/professorat/i.test(SHIPPED.data.slides.map(s => s.title).join('|')), 'no section addressed to teachers');
 });
 const ALL_NON_DEFAULT = {
   enabledModes: ['timer', 'clock'], title: 'Prova completa', subtitle: 'Sub', room: 'Aula 9', board: 'Tauler X', banner: 'Avís X', bannerLevel: 'note',
