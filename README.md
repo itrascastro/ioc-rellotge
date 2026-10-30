@@ -3,8 +3,7 @@
 A classroom clock and board to project during exams, events and sessions. One offline HTML file, no dependencies,
 and the whole screen is configured from a single JSON template.
 
-**Live:** <https://itrascastro.github.io/ioc/ioc-rellotge/>
-**With the collection-exam template (proves de compleció):** <https://itrascastro.github.io/ioc/ioc-rellotge/?plantilla=presets/proves-compleccio.json>
+**Live:** <https://itrascastro.github.io/ioc/ioc-rellotge/> — on the first visit it opens already configured for the collection exams (proves de compleció); a saved setup is never replaced.
 
 The interface is in Catalan. What you write on the screen is never translated or changed.
 
@@ -34,7 +33,9 @@ A template holds every setting (46 keys): texts, schedule, sections, clock mode,
 
 - Any key you leave out is not touched; an invalid value falls back to its default.
 - Import it from **Desar → Plantilles → Importa una plantilla**, or open the app with `?plantilla=presets/your-file.json`
-  (same-site `.json` paths only).
+  (same-site `.json` paths only; it asks before replacing a saved setup).
+- A deployment can ship a default for first-time visitors with `<meta name="rellotge-plantilla" content="presets/your-file.json">`
+  in `index.html`. This repository points it at the collection-exam template; remove the tag for a blank start.
 - `presets/exemple-complet.json` lists every key with its default (generated from the code: `npm run example`).
 - `presets/proves-compleccio.json` is a real session: schedule, per-phase messages and sections for a collection exam.
 - The full reference of keys and allowed values is in [`doc/plantilla-json.md`](doc/plantilla-json.md).
@@ -44,7 +45,7 @@ A template holds every setting (46 keys): texts, schedule, sections, clock mode,
 No dependencies: Node ≥ 22 and Chrome. A hand-written DevTools client drives a real browser.
 
 ```bash
-npm test          # functional battery (166 tests)
+npm test          # functional battery (167 tests)
 npm run stress    # every text at its maximum length, three screen sizes
 ```
 

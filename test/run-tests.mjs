@@ -758,6 +758,18 @@ await t(G13, 'section colours stay readable on a light theme (deep tones, not pa
     ok(ratio >= 4.5, tone + ' contrast ' + ratio.toFixed(2) + ' on the light theme');
   }
 });
+await t(G13, 'the published page ships the collection-exam setup by default, on the first visit only', async p => {
+  const base = await serve();
+  let q = await Page.open(browser, base + 'index.html');
+  try {
+    await sleep(600); eq(await q.ev('config.title'), 'Proves de compleció'); eq(await q.ev('config.room'), 'Aula DAW'); eq(await q.ev('config.schedule.length'), 10); eq(q.dialogs.length, 0, 'no question on a first visit');
+    eq(await q.ev("document.querySelector('.stop')!==null"), true, 'the day line is there');
+  } finally { await q.close(); }
+  q = await Page.open(browser, base + 'index.html', { seed: { title: 'La meva pantalla', room: 'Aula 5' } });
+  try { await sleep(600); eq(await q.ev('config.title'), 'La meva pantalla', 'a saved setup is never replaced'); eq(await q.ev('config.room'), 'Aula 5'); eq(q.dialogs.length, 0); } finally { await q.close(); }
+  q = await Page.open(browser, base + 'index.html?plantilla=presets/exemple-complet.json');
+  try { await sleep(600); eq(await q.ev('config.title'), 'Benvinguts', 'an explicit link wins over the default'); } finally { await q.close(); }
+});
 await t(G13, 'in a saved template the bulky images come last, so the JSON stays readable', async p => {
   await p.ev("config.logoDark='data:image/png;base64,AAAA';config.logoLight='data:image/png;base64,BBBB';0");
   const keys = await p.ev("Object.keys(currentContent())"); eq(keys.slice(-2).join(), 'logoDark,logoLight'); eq(await p.ev("Object.keys(currentContent().slides[0]).pop()"), 'image');
