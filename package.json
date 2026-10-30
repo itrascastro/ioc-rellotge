@@ -1,0 +1,13 @@
+{
+  "name": "ioc-rellotge",
+  "version": "1.0.0",
+  "description": "Classroom clock and board for projecting exams, events and sessions: one offline HTML file, configurable from one JSON template.",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node test/run-tests.mjs",
+    "stress": "node test/stress.mjs",
+    "example": "node test/dump-defaults.mjs"
+  }
+}

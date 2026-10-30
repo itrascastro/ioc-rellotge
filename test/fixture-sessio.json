@@ -1,0 +1,82 @@
+{
+  "app": "Rellotge-IOC-Plantilla",
+  "version": 1,
+  "name": "Proves de compleció (IOC)",
+  "data": {
+    "title": "PAF de Compleció",
+    "subtitle": "Cicles LOE extingits · 2026–27",
+    "clockMode": "schedule",
+    "schedule": [
+      {
+        "t": "14:00",
+        "name": "Preparació de la seu",
+        "show": false,
+        "msg": "Seguiu les indicacions del professorat."
+      },
+      {
+        "t": "14:45",
+        "name": "Entrada de l’alumnat",
+        "show": false,
+        "msg": "Tingueu el document d’identitat a la vista."
+      },
+      {
+        "t": "15:00",
+        "name": "Inici de les proves",
+        "show": false,
+        "msg": "No podeu sortir abans de les 15:30."
+      },
+      {
+        "t": "15:30",
+        "name": "Tancament de l’accés",
+        "show": false,
+        "msg": "Recordeu: primera recollida a les 17:00. Si feu diverses proves, convé començar la següent cap a les 16:30."
+      },
+      {
+        "t": "17:00",
+        "name": "Primera recollida",
+        "show": true,
+        "msg": "Lliureu la prova corresponent abans de les 19:00."
+      },
+      {
+        "t": "19:00",
+        "name": "Segona recollida",
+        "show": true,
+        "msg": "Lliureu la prova corresponent abans de les 21:00."
+      },
+      {
+        "t": "21:00",
+        "name": "Tercera recollida",
+        "show": true,
+        "msg": "La resta de proves es recull a les 21:15."
+      },
+      {
+        "t": "21:15",
+        "name": "Recollida final",
+        "show": true,
+        "msg": "Seguiu les indicacions del professorat."
+      }
+    ],
+    "slides": [
+      {
+        "kind": "list",
+        "title": "Abans de començar",
+        "content": "Manteniu el DNI, NIE, passaport o permís de conduir a la vista.\nDesconnecteu els telèfons mòbils.\nEscriviu amb bolígraf blau o negre.\nNom i cognoms al primer full de l’enunciat i a tots els fulls de resposta."
+      },
+      {
+        "kind": "list",
+        "title": "Com organitzar les proves",
+        "content": "Podeu fer les proves en l’ordre que preferiu.\nDurada de cada prova: 1 h 20 min; FOL i EIE: 1 h.\nDistribuïu el temps per poder acabar totes les proves.\nLliureu almenys una prova a cada recollida que us correspongui."
+      },
+      {
+        "kind": "list",
+        "title": "Entrega i sortida",
+        "content": "Amb una prova, lliureu-la abans de les 17:00.\nAmb dues, abans de les 19:00; amb tres, abans de les 21:00.\nNo podeu sortir de l’aula abans de les 15:30.\nEntregueu tots els enunciats, fulls de resposta i esborranys."
+      },
+      {
+        "kind": "list",
+        "title": "Consultes i indicacions",
+        "content": "Les proves són en català; podeu respondre en català o castellà.\nSi necessiteu un aclariment lingüístic, aixequeu la mà.\nNomés es permet el material que indica la fitxa tècnica de la prova.\nSi necessiteu un justificant d’assistència, demaneu-lo en identificar-vos."
+      }
+    ]
+  }
+}
