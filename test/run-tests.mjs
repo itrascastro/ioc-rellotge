@@ -817,6 +817,15 @@ await t(G13, 'save the current setup as your own template, apply it later, delet
   eq(await cfg(p, 'title'), 'La meva sessió'); eq(await p.ev("config.schedule.map(e=>e.msg)"), ['Bon dia', '']);
   await p.ev("document.querySelector('#my-templates .btn.danger').click()"); await sleep(150); eq(await p.ev('userTemplates().length'), 0);
 });
+await t(G13, 'a template with a very long name never overlaps its buttons', async p => {
+  await p.ev("addUserTemplate('Complecio_26S1_DAM_Modul_0485_Programacio_amb_un_nom_de_fitxer_molt_llarg_sense_espais',currentContent())");
+  for (const [w, h] of [[1920, 1080], [1280, 720], [390, 844]]) {
+    await p.cmd('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: w < 600 }); await sleep(250);
+    await open(p, 'files');
+    const r = await p.ev("(() => { const row = document.querySelector('#my-templates .row'); const b = row.querySelector('.txt b').getBoundingClientRect(); const a = row.querySelector('.acts').getBoundingClientRect(); const R = row.getBoundingClientRect(); const apart = b.right <= a.left + 1 || b.bottom <= a.top + 1; return { apart, inside: a.right <= R.right + 1 && b.right <= R.right + 1, cut: row.querySelector('.txt b').scrollWidth > row.querySelector('.txt b').clientWidth + 1 }; })()");
+    ok(r.apart, `name and buttons overlap at ${w}px`); ok(r.inside, `something leaves the row at ${w}px`); ok(!r.cut, `name is clipped sideways at ${w}px`);
+  }
+});
 await t(G13, 'declining the delete confirmation keeps the template', async p => {
   await p.ev("addUserTemplate('Meva',currentContent())"); p.acceptDialogs = false; await open(p, 'files'); await p.ev("document.querySelector('#my-templates .btn.danger').click()"); await sleep(150); eq(await p.ev('userTemplates().length'), 1);
 });
