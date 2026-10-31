@@ -38,7 +38,7 @@ Un únic fitxer JSON configura tota la pantalla. Un agent només ha de canviar v
 | `timerBeep` | bool, avís sonor en acabar | `true` |
 | `seconds` | bool, mostra els segons | `false` |
 | `schedule` | `[]` = sense fites (permès); fins a 16 fites `{ "t":"HH:MM", "name":"…", "show":bool, "msg":"…" }` (`show` = surt a la línia del dia; `msg` = missatge durant la fase) | 4 d’exemple |
-| `autoHint` | bool, «Falten N min per a…» si no hi ha missatge | `false` |
+| `autoHint` | bool, mostra «Falten N min per a <fita>» sota el rellotge durant els minuts d’avís (`warnMin`) si la fita no té missatge propi | `false` |
 | `warnMin` | 0–30 minuts d’avís de color (0 = mai) | `5` |
 | `tintMode` | `screen` tota la pantalla · `ring` només l’aro · `none` | `screen` |
 | `layout` | 0–100, % de pantalla pel rellotge (0 = només missatges, 100 = només rellotge) | `50` |
