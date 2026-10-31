@@ -643,6 +643,13 @@ await t(G12, 'the stage tag over the ring is never squeezed by a long detail', a
     ok(r[0] <= r[1] + 1, `tag "${r[2]}" is cut at ${w}px (${r[0]} > ${r[1]})`);
   }
 });
+await t(G12, 'the ring of the current time is full at second 59 and starts again without sweeping back', async p => {
+  await p.ev("config.clockMode='clock';renderClock();0");
+  const off = () => p.ev("Number(document.getElementById('progress').style.strokeDashoffset)");
+  await sim(p, '10:26:59'); near(await off(), 0, 0.01);
+  await sim(p, '10:26:00'); near(await off(), 2 * Math.PI * 170 * (59 / 60), 0.01);
+  eq(await p.ev("getComputedStyle(document.getElementById('progress')).transitionProperty.includes('stroke-dashoffset')"), true, 'normal ticks stay animated');
+});
 await t(G12, 'midnight and the first second of the day are handled', async p => { await tpl(p, 'complecio'); await sim(p, '00:00'); eq(await txt(p, 'countdown'), '14:00'); eq(await txt(p, 'stage-tag'), 'Abans de començar'); });
 await t(G12, 'time travel: simulated time never breaks the timer or stopwatch', async p => { await sim(p, '16:10'); await p.ev("config.clockMode='timer';config.timerMinutes=2;renderClock();document.getElementById('ctl-toggle').click()"); await sleep(1300); ok((await txt(p, 'countdown')) < '02:00'); });
 await t(G12, 'no timers leak: the heap stays flat over many renders', async p => {
