@@ -43,8 +43,8 @@ Un únic fitxer JSON configura tota la pantalla. Un agent només ha de canviar v
 | `tintMode` | `screen` tota la pantalla · `ring` només l’aro · `none` | `screen` |
 | `layout` | 0–100, % de pantalla pel rellotge (0 = només missatges, 100 = només rellotge) | `50` |
 | `theme` | `system` `light` `dark` | `system` |
-| `accent` | `blue` `green` `purple` `orange` `pink` `teal` | `blue` |
-| `bgColor` | `default` `cream` `mint` `sky` `rose` `lilac` `graphite` | `default` |
+| `accent` | `blue` `green` `purple` `orange` `pink` `teal` `emerald` | `blue` |
+| `bgColor` | `default` `cream` `mint` `sky` `rose` `lilac` `graphite` `slate` | `default` |
 | `textSize` | `small` `normal` `large` `xlarge` (text de les seccions) | `normal` |
 | `listStyle` | `cards` `numbers` `bullets` | `cards` |
 | `labelSize`, `noteSize` | `s` `m` `l` `xl` | `m` |

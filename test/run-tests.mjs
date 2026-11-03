@@ -371,17 +371,17 @@ await t(G7, 'the end-of-time colour is configurable: whole screen, ring only, or
 
 await t(G7, 'the screen background colour is chosen in Aparença, for dark and light themes', async p => {
   await open(p, 'display');
-  eq(await p.ev("document.querySelectorAll('[data-seg=bgColor] button').length"), 7); eq(await cfg(p, 'bgColor'), 'default');
+  eq(await p.ev("document.querySelectorAll('[data-seg=bgColor] button').length"), 8); eq(await cfg(p, 'bgColor'), 'default');
   const seen = new Set();
   for (const th of ['dark', 'light']) {
     await p.ev(`config.theme='${th}';applyTheme();0`);
-    for (const c of ['default', 'cream', 'mint', 'sky', 'rose', 'lilac', 'graphite']) {
+    for (const c of ['default', 'cream', 'mint', 'sky', 'rose', 'lilac', 'graphite', 'slate']) {
       await p.ev(`document.querySelector('[data-seg=bgColor] [data-v=${c}]').click()`); await sleep(750);
       eq(await cfg(p, 'bgColor'), c); seen.add(th + await p.ev("getComputedStyle(document.body).backgroundColor"));
     }
   }
-  eq(seen.size, 14, 'every colour differs in both themes');
-  await sleep(300); await p.reload(); eq(await cfg(p, 'bgColor'), 'graphite', 'persisted');
+  eq(seen.size, 16, 'every colour differs in both themes');
+  await sleep(300); await p.reload(); eq(await cfg(p, 'bgColor'), 'slate', 'persisted');
 });
 
 await t(G7, 'clamped texts keep room for letter descenders (g, p, y are not cut at the bottom)', async p => {
