@@ -643,12 +643,20 @@ await t(G12, 'the stage tag over the ring is never squeezed by a long detail', a
     ok(r[0] <= r[1] + 1, `tag "${r[2]}" is cut at ${w}px (${r[0]} > ${r[1]})`);
   }
 });
-await t(G12, 'the ring of the current time is full at second 59 and starts again without sweeping back', async p => {
+await t(G12, 'the ring of the current time follows the real second: full at :59.999, empty at :00.000, no lag', async p => {
   await p.ev("config.clockMode='clock';renderClock();0");
-  const off = () => p.ev("Number(document.getElementById('progress').style.strokeDashoffset)");
-  await sim(p, '10:26:59'); near(await off(), 0, 0.01);
-  await sim(p, '10:26:00'); near(await off(), 2 * Math.PI * 170 * (59 / 60), 0.01);
-  eq(await p.ev("getComputedStyle(document.getElementById('progress')).transitionProperty.includes('stroke-dashoffset')"), true, 'normal ticks stay animated');
+  const at = async (h, m, sec, ms) => {
+    await p.ev(`(()=>{const R=window.__D||(window.__D=Date);const T=new R(2026,10,3,${h},${m},${sec},${ms}).getTime();window.Date=class extends R{constructor(...a){if(a.length)super(...a);else super(T)}static now(){return T}};})()`);
+    await sleep(120);
+    return p.ev("Number(document.getElementById('progress').style.strokeDashoffset)");
+  };
+  const C = 2 * Math.PI * 170;
+  near(await at(10, 26, 59, 999), 0, C * 0.001, 'full just before the minute changes');
+  near(await at(10, 27, 0, 0), C, 0.5, 'empty at the very start of the minute');
+  near(await at(10, 27, 0, 500), C * (1 - 0.5 / 60), 0.5, 'half a second in');
+  near(await at(10, 27, 30, 0), C * 0.5, 0.5, 'half way at :30');
+  eq(await p.ev("getComputedStyle(document.getElementById('progress')).transitionProperty.includes('stroke-dashoffset')"), false, 'no animation lag in this mode');
+  await p.ev("window.Date=window.__D;0");
 });
 await t(G12, 'midnight and the first second of the day are handled', async p => { await tpl(p, 'complecio'); await sim(p, '00:00'); eq(await txt(p, 'countdown'), '14:00'); eq(await txt(p, 'stage-tag'), 'Abans de començar'); });
 await t(G12, 'time travel: simulated time never breaks the timer or stopwatch', async p => { await sim(p, '16:10'); await p.ev("config.clockMode='timer';config.timerMinutes=2;renderClock();document.getElementById('ctl-toggle').click()"); await sleep(1300); ok((await txt(p, 'countdown')) < '02:00'); });
